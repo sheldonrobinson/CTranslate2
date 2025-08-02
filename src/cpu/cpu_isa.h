@@ -5,8 +5,8 @@
 namespace ctranslate2 {
   namespace cpu {
 
-    enum class CpuIsa {
-      STANDARD,
+    enum class CpuIsa : uint8_t {
+      STANDARD = 0,
 #if defined(CT2_X86_BUILD)
       AVX,
       AVX2,
