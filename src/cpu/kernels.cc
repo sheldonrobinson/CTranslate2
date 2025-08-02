@@ -15,7 +15,7 @@
 #  define TARGET_ISA CpuIsa::NEON
 #  include "cpu/vec_neon.h"
 #else
-#  define TARGET_ISA CpuIsa::GENERIC
+#  define TARGET_ISA CpuIsa::STANDARD
 #  include "cpu/vec.h"
 #endif
 

@@ -10,7 +10,7 @@ namespace ctranslate2 {
   namespace cpu {
 
     // Interface for vectorized types.
-    template <typename T, CpuIsa ISA = CpuIsa::GENERIC>
+    template <typename T, CpuIsa ISA = CpuIsa::STANDARD>
     struct Vec {
 
       using value_type = T;
@@ -150,7 +150,7 @@ namespace ctranslate2 {
       }
     };
 
-    template <typename T, CpuIsa ISA = CpuIsa::GENERIC>
+    template <typename T, CpuIsa ISA = CpuIsa::STANDARD>
     using vec_type = typename Vec<T, ISA>::value_type;
 
     template <CpuIsa ISA>

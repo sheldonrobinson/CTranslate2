@@ -37,7 +37,7 @@ namespace ctranslate2 {
         return "NEON";
 #endif
       default:
-        return "GENERIC";
+        return "STANDARD";
       }
     }
 
@@ -55,8 +55,8 @@ namespace ctranslate2 {
         if (env_isa == "NEON")
           return try_isa(env_isa, CpuIsa::NEON, cpu_supports_neon());
 #endif
-        if (env_isa == "GENERIC")
-          return CpuIsa::GENERIC;
+        if (env_isa == "STANDARD")
+          return CpuIsa::STANDARD;
 
         throw std::invalid_argument("Invalid CPU ISA: " + env_isa);
       }
@@ -74,7 +74,7 @@ namespace ctranslate2 {
 #  endif
 #endif
 
-      return CpuIsa::GENERIC;
+      return CpuIsa::STANDARD;
     }
 
     CpuIsa get_cpu_isa() {
