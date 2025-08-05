@@ -19,9 +19,10 @@ option(ENABLE_CPU_DISPATCH "Compile CPU kernels for multiple ISA and dispatch at
 option(ENABLE_PROFILING "Compile with profiling support" OFF)
 option(BUILD_CLI "Compile the clients" ON)
 option(BUILD_TESTS "Compile the tests" OFF)
-option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+option(CT2_BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(WITH_TENSOR_PARALLEL "Compile with NCCL and MPI backend" OFF)
 option(WITH_FLASH_ATTN "Compile with Flash Attention 2" OFF)
+option(CT2_INSTALL "Install applications and libraries" OFF)
 
 if(ENABLE_PROFILING)
   message(STATUS "Enable profiling support")
@@ -81,7 +82,7 @@ list(GET CTRANSLATE2_VERSION_LIST 0 CTRANSLATE2_MAJOR_VERSION)
 
 if(MSVC)
   add_compile_definitions(_USE_MATH_DEFINES) # required for M_PI
-  if(BUILD_SHARED_LIBS)
+  if(CT2_BUILD_SHARED_LIBS)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
   else()
     if(CMAKE_VERSION VERSION_LESS "3.15.0")
@@ -243,7 +244,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64)|(amd64)|(AMD64)")
   add_definitions(-DCT2_X86_BUILD)
   set(CT2_BUILD_ARCH "x86_64")
 
-  if(BUILD_SHARED_LIBS)
+  if(CT2_BUILD_SHARED_LIBS)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
   endif()
   set(BUILD_SHARED_LIBS_SAVED "${BUILD_SHARED_LIBS}")
@@ -466,7 +467,7 @@ if (WITH_CUDA)
 
   add_definitions(-DCT2_WITH_CUDA)
   if(MSVC)
-    if(BUILD_SHARED_LIBS)
+    if(CT2_BUILD_SHARED_LIBS)
       list(APPEND CUDA_NVCC_FLAGS "-Xcompiler=/MD$<$<CONFIG:Debug>:d>")
     else()
       list(APPEND CUDA_NVCC_FLAGS "-Xcompiler=/MT$<$<CONFIG:Debug>:d>")
@@ -695,17 +696,19 @@ if (BUILD_CLI)
   add_subdirectory(cli)
 endif()
 
-install(
-  TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-)
-install(
-  DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-  FILES_MATCHING PATTERN "*.h*"
-)
+if(CT2_INSTALL)
+	install(
+	  TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets
+	  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+	  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	)
+	install(
+	  DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+	  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+	  FILES_MATCHING PATTERN "*.h*"
+	)
+endif()
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
@@ -714,11 +717,13 @@ write_basic_package_version_file(
   COMPATIBILITY AnyNewerVersion
 )
 
-if(BUILD_SHARED_LIBS)
-  export(EXPORT ${PROJECT_NAME}Targets
-    FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/${PROJECT_NAME}Targets.cmake"
-    NAMESPACE CTranslate2::
-  )
+if(CT2_INSTALL)
+	if(CT2_BUILD_SHARED_LIBS)
+	  export(EXPORT ${PROJECT_NAME}Targets
+		FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/${PROJECT_NAME}Targets.cmake"
+		NAMESPACE CTranslate2::
+	  )
+	endif()
 endif()
 
 configure_file(cmake/${PROJECT_NAME}Config.cmake
@@ -733,24 +738,26 @@ configure_file(cmake/FindNCCL.cmake
 
 set(ConfigPackageLocation ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 
-if(BUILD_SHARED_LIBS)
-  install(EXPORT ${PROJECT_NAME}Targets
-    FILE
-      ${PROJECT_NAME}Targets.cmake
-    NAMESPACE
-      CTranslate2::
-    DESTINATION
-      ${ConfigPackageLocation}
-  )
-endif()
+if(CT2_INSTALL)
+	if(CT2_BUILD_SHARED_LIBS)
+	  install(EXPORT ${PROJECT_NAME}Targets
+		FILE
+		  ${PROJECT_NAME}Targets.cmake
+		NAMESPACE
+		  CTranslate2::
+		DESTINATION
+		  ${ConfigPackageLocation}
+	  )
+	endif()
 
-install(
-  FILES
-    cmake/${PROJECT_NAME}Config.cmake
-    cmake/FindNCCL.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/${PROJECT_NAME}ConfigVersion.cmake"
-  DESTINATION
-    ${ConfigPackageLocation}
-  COMPONENT
-    Devel
-)
+	install(
+	  FILES
+		cmake/${PROJECT_NAME}Config.cmake
+		cmake/FindNCCL.cmake
+		"${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/${PROJECT_NAME}ConfigVersion.cmake"
+	  DESTINATION
+		${ConfigPackageLocation}
+	  COMPONENT
+		Devel
+	)
+endif()
