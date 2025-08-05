@@ -16,7 +16,9 @@ target_link_libraries(translator
 
 set_target_properties(translator PROPERTIES OUTPUT_NAME ct2-translator)
 
-install(
-  TARGETS translator
-  DESTINATION ${CMAKE_INSTALL_BINDIR}
-  )
+if(CT2_INSTALL)
+	install(
+	  TARGETS translator
+	  DESTINATION ${CMAKE_INSTALL_BINDIR}
+	  )
+endif()
