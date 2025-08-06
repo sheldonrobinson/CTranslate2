@@ -7,6 +7,8 @@ endif()
 
 project(ctranslate2)
 
+include(CMakeDependentOption)
+
 option(WITH_MKL "Compile with Intel MKL backend" ON)
 option(WITH_DNNL "Compile with DNNL backend" OFF)
 option(WITH_ACCELERATE "Compile with Accelerate backend" OFF)
@@ -23,6 +25,8 @@ option(CT2_BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(WITH_TENSOR_PARALLEL "Compile with NCCL and MPI backend" OFF)
 option(WITH_FLASH_ATTN "Compile with Flash Attention 2" OFF)
 option(CT2_INSTALL "Install applications and libraries" OFF)
+
+cmake_dependent_option(BUILD_SHARED_LIBS "Build shared libraries" ON CT2_BUILD_SHARED_LIBS OFF)
 
 if(ENABLE_PROFILING)
   message(STATUS "Enable profiling support")
