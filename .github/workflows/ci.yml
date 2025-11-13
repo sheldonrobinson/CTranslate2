@@ -132,14 +132,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-2019]
+        os: [ubuntu-22.04, windows-2022]
         arch: [auto64]
         include:
         - os: ubuntu-22.04
           arch: aarch64
-        - os: macos-13
+        - os: macos-15
           arch: arm64
-        - os: macos-13
+        - os: macos-15-intel
           arch: x86_64
 
     steps:
@@ -152,14 +152,14 @@ jobs:
         name: Set up QEMU
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.22.0
+        uses: pypa/cibuildwheel@v3.2.1
         with:
           package-dir: python
           output-dir: python/wheelhouse
         env:
           CIBW_ENVIRONMENT_PASS_LINUX: CIBW_ARCHS
           CIBW_ENVIRONMENT_WINDOWS: CTRANSLATE2_ROOT='${{ github.workspace }}\install'
-          CIBW_ENVIRONMENT_MACOS: "CTRANSLATE2_ROOT='/usr/local' MACOSX_DEPLOYMENT_TARGET=10.13"
+          CIBW_ENVIRONMENT_MACOS: "CTRANSLATE2_ROOT='/usr/local' MACOSX_DEPLOYMENT_TARGET=11.00"
           CIBW_BEFORE_ALL_LINUX: python/tools/prepare_build_environment_linux.sh
           CIBW_BEFORE_ALL_MACOS: python/tools/prepare_build_environment_macos.sh
           CIBW_BEFORE_ALL_WINDOWS: bash python/tools/prepare_build_environment_windows.sh
@@ -183,13 +183,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-2019]
+        os: [ubuntu-22.04, windows-2022]
 
     steps:
-      - name: Set up Python 3.9
+      - name: Set up Python 3.10.11
         uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: "3.10.11"
 
       - uses: actions/checkout@v4
 
@@ -208,13 +208,13 @@ jobs:
       - name: Install wheel
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          pip install *cp39*manylinux*x86_64.whl
+          pip install *cp310*manylinux*x86_64.whl
 
       - name: Install wheel
         if: startsWith(matrix.os, 'windows')
         shell: bash
         run: |
-          pip install *cp39*win*.whl
+          pip install *cp310*win*.whl
 
       - name: Run tests
         shell: bash
@@ -228,10 +228,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python 3.9
+      - name: Set up Python 3.10.11
         uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: "3.10.11"
 
       - name: Install dependencies
         run: |
@@ -307,10 +307,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python 3.9
+      - name: Set up Python 3.10.11
         uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: "3.10.11"
 
       - name: Download CTranslate2 wheels
         uses: actions/download-artifact@v4
@@ -321,7 +321,7 @@ jobs:
 
       - name: Install CTranslate2 wheel
         run: |
-          pip install *cp39*manylinux*x86_64.whl
+          pip install *cp310*manylinux*x86_64.whl
 
       - name: Install dependencies to build docs
         working-directory: docs
